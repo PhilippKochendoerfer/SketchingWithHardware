@@ -1,4 +1,4 @@
 baseURL = 'https://PhilippKochendoerfer.github.io/SketchingWithHardware'
-languageCode = 'en-us'
-title = 'My New Hugo Site'
+languageCode = 'de-de'
+title = 'Sketching With Hardware'
 theme = "ananke"
