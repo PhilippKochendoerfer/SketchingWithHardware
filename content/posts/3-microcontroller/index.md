@@ -46,6 +46,43 @@ Das I²C Protokoll ist für die Kommunikation zwischen periphären Integrierten 
 ![Conroller-Peripheral](i2c.jpg) 
 _Controller - Periphal Aufteilung_ [[5]](#literatur)
 
+#### Codebeispiel
+
+```c++
+// include the Wire library
+#include <Wire.h>
+
+// define the I2C address of the device
+const int deviceAddress = 0x04;
+
+void setup() {
+  // start the I2C bus
+  Wire.begin();
+}
+
+void loop() {
+  // send a request to the device to read two bytes of data
+  Wire.requestFrom(deviceAddress, 2);
+
+  // check if the device sent any data
+  if (Wire.available() > 0) {
+    // read the first byte of data
+    byte firstByte = Wire.read();
+
+    // read the second byte of data
+    byte secondByte = Wire.read();
+
+    // do something with the data...
+  }
+}
+
+```
+
+Dieses Programm geht davon aus, dass das I2C-Gerät die Adresse 0x04 ha. Es geht auch davon aus, dass das Gerät gelesen werden kann, indem man zwei Bytes an Daten anfordert.
+
+In der setup()-Funktion wird die Wire.begin()-Funktion aufgerufen, um die I2C-Kommunikation zu starten.
+
+In der loop()-Funktion wird die Wire.requestFrom()-Funktion verwendet, um vom Gerät zwei Bytes an Daten anzufordern. Die Wire.available()-Funktion wird dann verwendet, um zu überprüfen, ob das Gerät Daten gesendet hat. Wenn Daten verfügbar sind, werden sie mit der Wire.read()-Funktion gelesen und in zwei separate byte-Variablen gespeichert.
 
 ##### Protokoll
 Die übertragenen Nachrichten werden in zwei Arten von Frames unterteilt, die Adress Frames und die Daten Frames. Der Controller kommunieziert mit dem Adress Frame, mit welchem Peripheral er kommunizieren möchte. Die Daten Frames werden, entsprechend dem read/write bit, entweder vom Controller zum Peripheral oder vom Peripheral zum Controller gesendet.
@@ -64,7 +101,7 @@ Beispielübertragung I²C Protokoll [[6]](#literatur)
 
 Auch wenn im obere Abschnitt die serielle Kommunikation beschrieben wird, wurde im praktischen Teil erst einmal mit den Sensoren und Aktoren experimentiert.
 
-### Projekt: HSL Steuerung
+### Versuch: HSL Steuerung
 
 Im Labor habe ich eine Schaltung und Steuerung gebaut, welche mittels eines Joysticks und Drehreglers eine HSV/HSL Steuerung für eine RGB LED realisiert.
 
@@ -200,10 +237,78 @@ void HSVtoRGB(int hue, int sat, int val, int colors[3]) {
  }
 ```
 
+### Versich: WIFI
+
+In diesem Versuch ging es darum, eine Verbindung zwischen einem Arduino und einem WLAN zu realisieren. Dies wurde mit Hilfe der Bibliothek ESP8266WiFi realisiert. Auf dem Arduino lief ein Webserver der eine Seite mit einem Button bereitstellt. Wenn dieser Button gedrückt wird, wird die LED für den Bruchteil einer Sekunde eingeschaltet.
+
+Leider gibt es zu desem Versuch aufgrund einer Reihe unglücklicher Umstände keine Fotos und Code mehr
+
+### Versuch: LDC
+
+Bei diesem Versuch ging es darum, eine LCD Anzeige mit dem Arduino anzusteuern. Dies wurde mit Hilfe der oben genannten I2C Schnittstelle sowie der Bibliothek LiquidCrystal_I2C realisiert. Das Programm lässt den Text einmal in jeder zeile jeweils von links nach rechts laufen.
+
+#### Komponenten und Bauteile
+
+* Arduino Mega 2560
+* Breadboard Typ MB-102
+* 1602 LCD Modul mit I2C
+
+![Foto](lcd_foto.jpg)
+
+
+#### Schaltplan
+
+![Schaltplan](lcd_fritzing.jpg)
+
+#### Code
+
+```C++
+
+#include <Arduino.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+String posParser(int pos, String text)
+{
+  if (pos < 0)
+  {
+    return text.substring(-pos, 16);
+  } 
+  return text;
+}
+
+void setup()
+{
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(0, 0);
+  lcd.createChar(0, heart);
+  lcd.home();
+}
+
+void loop()
+{
+  for (int i = 0; i < 2; i++)
+  {
+    for (int j = -7; j < 16; j++)
+    {
+      lcd.clear();
+      lcd.setCursor(j, i);
+      lcd.print(posParser(j,"Philipp"));
+      delay(100);
+    }
+  }
+}
+
+```
+
+
 ## Literatur
 
 * [1] [Arduino IDE](https://www.arduino.cc/en/software)
-* [2] Askari, Wieluch (2022) Sketching With Hardwar : 04 Microcontroller 
+* [2] Askari, Wieluch (2022) Sketching With Hardware : 04 Microcontroller 
 * [3] https://cdn.sparkfun.com/assets/e/5/4/2/a/50e1ccf1ce395f962b000000.png
 * [4] https://learn.sparkfun.com/tutorials/i2c
 * [5] https://cdn.sparkfun.com/r/600-600/assets/learn_tutorials/8/2/I2C-Block-Diagram.jpg
